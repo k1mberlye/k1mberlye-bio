@@ -1060,3 +1060,30 @@ body,
   font-size: 11px;
   color: rgba(255,255,255,.55);
 }
+@media (max-width: 768px) {
+  .profile-container {
+    width: 110px !important;
+    height: 110px !important;
+    margin: 0 auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  .profile-picture {
+    width: 110px !important;
+    height: 110px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    display: block !important;
+  }
+
+  .profile-header {
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .profile-info {
+    align-items: center !important;
+    text-align: center !important;
+  }
+}

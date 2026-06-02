@@ -241,7 +241,7 @@ initializeVisitorCounter();
 
 
   const bioMessages = [
-    "Website Specialist • PC optimization specialist • Gaming Performance Tuning • Custom Windows optimization",
+    "Website Specialist • PC Optimization Specialist • Custom Windows optimization",
   ];
   let bioText = '';
   let bioIndex = 0;

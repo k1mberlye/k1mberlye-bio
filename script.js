@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  const startMessage = "Welcome!";
+  const startMessage = "Welcome! Click to continue!";
   let startTextContent = '';
   let startIndex = 0;
   let startCursorVisible = true;

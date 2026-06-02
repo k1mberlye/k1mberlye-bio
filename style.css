@@ -1233,3 +1233,26 @@ body {
     margin-top: 8px !important;
   }
 }
+
+
+/* ==========================================
+   BOTTOM AUDIO VISUALIZER - LINUX STYLE
+   ========================================== */
+#bottom-visualizer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 120px;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0.68;
+  mix-blend-mode: screen;
+}
+
+@media (max-width: 768px) {
+  #bottom-visualizer {
+    height: 72px;
+    opacity: 0.48;
+  }
+}

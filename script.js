@@ -140,6 +140,7 @@ initializeVisitorCounter();
       backgroundMusic.preload = 'auto';
       try { backgroundMusic.load(); } catch (e) {}
       await backgroundMusic.play();
+      startBottomVisualizer(backgroundMusic);
     } catch (err) {
       console.error("Failed to play music after user interaction:", err);
     }
@@ -717,3 +718,116 @@ document.addEventListener("DOMContentLoaded", () => {
   loadDiscordLiveCards();
   setInterval(loadDiscordLiveCards, 30000);
 });
+
+
+/* =========================================================
+   BOTTOM AUDIO VISUALIZER - Linux/CAVA style
+   Works after the user taps/clicks the start screen.
+   ========================================================= */
+let bottomVisualizerStarted = false;
+let bottomVisualizerAudioContext = null;
+
+function startBottomVisualizer(audioElement) {
+  if (bottomVisualizerStarted || !audioElement) return;
+
+  const canvas = document.getElementById("bottom-visualizer");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  bottomVisualizerStarted = true;
+
+  try {
+    bottomVisualizerAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    if (bottomVisualizerAudioContext.state === "suspended") {
+      bottomVisualizerAudioContext.resume().catch(() => {});
+    }
+
+    const source = bottomVisualizerAudioContext.createMediaElementSource(audioElement);
+    const analyser = bottomVisualizerAudioContext.createAnalyser();
+
+    source.connect(analyser);
+    analyser.connect(bottomVisualizerAudioContext.destination);
+
+    analyser.fftSize = 128;
+    analyser.smoothingTimeConstant = 0.82;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    function resizeVisualizer() {
+      const isMobile = window.innerWidth <= 768;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const cssHeight = isMobile ? 72 : 120;
+
+      canvas.style.height = cssHeight + "px";
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(cssHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    resizeVisualizer();
+    window.addEventListener("resize", resizeVisualizer);
+
+    function drawVisualizer() {
+      requestAnimationFrame(drawVisualizer);
+
+      const width = window.innerWidth;
+      const height = window.innerWidth <= 768 ? 72 : 120;
+
+      analyser.getByteFrequencyData(dataArray);
+      ctx.clearRect(0, 0, width, height);
+
+      const bars = window.innerWidth <= 768 ? 34 : 58;
+      const gap = window.innerWidth <= 768 ? 3 : 4;
+      const barWidth = width / bars;
+
+      for (let i = 0; i < bars; i++) {
+        const dataIndex = Math.floor((i / bars) * bufferLength);
+        const value = dataArray[dataIndex] || 0;
+
+        const normalized = value / 255;
+        const barHeight = Math.max(3, normalized * height);
+        const x = i * barWidth;
+        const y = height - barHeight;
+
+        const gradient = ctx.createLinearGradient(0, y, 0, height);
+        gradient.addColorStop(0, "rgba(0, 206, 209, 0.95)");
+        gradient.addColorStop(0.45, "rgba(255, 107, 158, 0.55)");
+        gradient.addColorStop(1, "rgba(0, 206, 209, 0.02)");
+
+        ctx.shadowBlur = 16;
+        ctx.shadowColor = "#00CED1";
+        ctx.fillStyle = gradient;
+
+        const radius = 8;
+        const drawWidth = Math.max(2, barWidth - gap);
+
+        roundRect(ctx, x + gap / 2, y, drawWidth, barHeight + 10, radius);
+        ctx.fill();
+      }
+    }
+
+    drawVisualizer();
+  } catch (err) {
+    console.error("Visualizer failed:", err);
+    bottomVisualizerStarted = false;
+  }
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}

@@ -971,12 +971,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (command === 'discord') {
       appendLine('opening discord...', 'success');
-      const discordLink = document.querySelector('.discord-card a, a[href*="discord"]');
-      if (discordLink && discordLink.href) {
-        window.open(discordLink.href, '_blank');
-      } else {
-        appendLine('discord link not found in this page.', 'warning');
-      }
+      window.open('https://discord.com/users/1076515431906549831', '_blank', 'noopener,noreferrer');
       return;
     }
 
@@ -1019,6 +1014,40 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       if (overlay.classList.contains('hidden')) openTerminal();
       else closeTerminal();
+    }
+  });
+});
+
+
+/* =========================================================
+   DISCORD USER CARD LINK FIX
+   makes the user discord card open the profile link
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const discordUserCard = document.querySelector('.discord-card.user-card');
+  const discordUserUrl = 'https://discord.com/users/1076515431906549831';
+
+  if (!discordUserCard) return;
+
+  discordUserCard.setAttribute('role', 'link');
+  discordUserCard.setAttribute('tabindex', '0');
+  discordUserCard.setAttribute('aria-label', 'Open Ares Discord profile');
+  discordUserCard.dataset.discordProfileUrl = discordUserUrl;
+
+  function openDiscordProfile() {
+    window.open(discordUserUrl, '_blank', 'noopener,noreferrer');
+  }
+
+  discordUserCard.addEventListener('click', (event) => {
+    const blockedTarget = event.target.closest('a, button, input, textarea, select');
+    if (blockedTarget) return;
+    openDiscordProfile();
+  });
+
+  discordUserCard.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openDiscordProfile();
     }
   });
 });

@@ -1584,3 +1584,40 @@ select,
 .terminal-open-btn {
   cursor: none !important;
 }
+
+/* =========================================================
+   DISCORD USER CARD CLICKABLE FIX
+   ========================================================= */
+.discord-card.user-card {
+  cursor: none !important;
+  pointer-events: auto !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.discord-card.user-card:hover,
+.discord-card.user-card:focus-visible {
+  border-color: var(--primary-color, #00CED1) !important;
+  box-shadow:
+    0 0 22px rgba(0, 206, 209, 0.32),
+    0 0 44px rgba(0, 206, 209, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  transform: translateY(-3px) !important;
+}
+
+.discord-card.user-card:focus-visible {
+  outline: 1px solid var(--primary-color, #00CED1);
+  outline-offset: 4px;
+}
+
+/* force native cursor off even on links/buttons/cards */
+*,
+*::before,
+*::after {
+  cursor: none !important;
+}
+
+.custom-cursor {
+  z-index: 2147483647 !important;
+  pointer-events: none !important;
+}

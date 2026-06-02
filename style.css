@@ -1087,3 +1087,149 @@ body,
     text-align: center !important;
   }
 }
+
+/* =========================================================
+   FINAL MOBILE + AUDIO/ANIMATION FIXES
+   ========================================================= */
+html,
+body {
+  min-height: 100%;
+  overflow-x: hidden !important;
+}
+
+#profile-block {
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+}
+
+.touch-device .custom-cursor {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  html,
+  body {
+    width: 100%;
+    min-height: 100svh;
+    overflow-y: auto !important;
+    perspective: none !important;
+  }
+
+  .container {
+    width: 100%;
+    min-height: 100svh;
+    height: auto !important;
+    padding: 34px 0 28px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+  }
+
+  #background {
+    width: 100vw !important;
+    height: 100svh !important;
+    object-fit: cover !important;
+  }
+
+  #profile-block,
+  #skills-block {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: min(92vw, 390px) !important;
+    max-width: 92vw !important;
+    min-height: auto !important;
+    max-height: none !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+    overflow: visible !important;
+  }
+
+  .profile-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 14px !important;
+  }
+
+  .profile-container {
+    width: 118px !important;
+    height: 118px !important;
+    margin: 0 auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  .profile-picture {
+    width: 118px !important;
+    height: 118px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    display: block !important;
+  }
+
+  .profile-info {
+    width: 100% !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .name-and-badges {
+    justify-content: center !important;
+    margin-bottom: 8px !important;
+  }
+
+  #profile-name {
+    font-size: 27px !important;
+    line-height: 1.15 !important;
+    max-width: 100% !important;
+    word-break: break-word !important;
+  }
+
+  #profile-bio {
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+    max-width: 100% !important;
+    min-height: 40px !important;
+  }
+
+  .bio-separator {
+    margin: 12px 0 8px !important;
+  }
+
+  .saweria-widget {
+    margin: 6px 0 18px !important;
+  }
+
+  .saweria-widget a {
+    max-width: 100% !important;
+    padding: 10px 22px !important;
+  }
+
+  .discord-section {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .discord-card {
+    width: 100% !important;
+    min-height: 88px !important;
+    padding: 14px !important;
+  }
+
+  .social-links {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .visitor-counter {
+    align-self: flex-start !important;
+    margin-top: 8px !important;
+  }
+}

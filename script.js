@@ -9,6 +9,8 @@ function initMedia() {
     return;
   }
   backgroundMusic.volume = 0.3;
+  backgroundMusic.preload = 'auto';
+  try { backgroundMusic.load(); } catch (e) {}
   backgroundVideo.muted = true; 
 
   
@@ -59,26 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (isTouchDevice) {
     document.body.classList.add('touch-device');
-    
-    document.addEventListener('touchstart', (e) => {
-      const touch = e.touches[0];
-      cursor.style.left = touch.clientX + 'px';
-      cursor.style.top = touch.clientY + 'px';
-      cursor.style.display = 'block';
-    });
-
-    document.addEventListener('touchmove', (e) => {
-      const touch = e.touches[0];
-      cursor.style.left = touch.clientX + 'px';
-      cursor.style.top = touch.clientY + 'px';
-      cursor.style.display = 'block';
-    });
-
-    document.addEventListener('touchend', () => {
-      cursor.style.display = 'none'; 
-    });
+    if (cursor) cursor.style.display = 'none';
   } else {
-
     document.addEventListener('mousemove', (e) => {
       cursor.style.left = e.clientX + 'px';
       cursor.style.top = e.clientY + 'px';
@@ -145,65 +129,66 @@ async function initializeVisitorCounter() {
 
 initializeVisitorCounter();
 
-  startScreen.addEventListener('click', () => {
-    startScreen.classList.add('hidden');
-    backgroundMusic.muted = false;
-    backgroundMusic.play().catch(err => {
-      console.error("Failed to play music after start screen click:", err);
-    });
-    profileBlock.classList.remove('hidden');
-    gsap.fromTo(profileBlock,
-      { opacity: 0, scale: 0.96 },
-      { opacity: 1, scale: 1, duration: 1, ease: 'power2.out', onComplete: () => {
-        profileContainer.classList.add('orbit');
-      }}
-    );
-    if (!isTouchDevice) {
-      try {
-        new cursorTrailEffect({
-          length: 10,
-          size: 8,
-          speed: 0.2
-        });
-        console.log("Cursor trail initialized");
-      } catch (err) {
-        console.error("Failed to initialize cursor trail effect:", err);
-      }
-    }
-    typeWriterName();
-    typeWriterBio();
-  });
+  let hasStartedExperience = false;
 
-  startScreen.addEventListener('touchstart', (e) => {
-    e.preventDefault();
+  async function playBackgroundMusic() {
+    if (!backgroundMusic) return;
+
+    try {
+      backgroundMusic.muted = false;
+      backgroundMusic.volume = 0.3;
+      backgroundMusic.preload = 'auto';
+      try { backgroundMusic.load(); } catch (e) {}
+      await backgroundMusic.play();
+    } catch (err) {
+      console.error("Failed to play music after user interaction:", err);
+    }
+  }
+
+  async function startExperience(e) {
+    if (e) e.preventDefault();
+    if (hasStartedExperience) return;
+    hasStartedExperience = true;
+
+    await playBackgroundMusic();
+
     startScreen.classList.add('hidden');
-    backgroundMusic.muted = false;
-    backgroundMusic.play().catch(err => {
-      console.error("Failed to play music after start screen touch:", err);
-    });
     profileBlock.classList.remove('hidden');
-    gsap.fromTo(profileBlock,
-      { opacity: 0, y: -50 },
-      { opacity: 1, y: 0, duration: 1, ease: 'power2.out', onComplete: () => {
-        profileBlock.classList.add('profile-appear');
+
+    gsap.killTweensOf(profileBlock);
+    gsap.set(profileBlock, {
+      autoAlpha: 0,
+      scale: 0.985,
+      x: 0,
+      y: 0,
+      rotationX: 0,
+      rotationY: 0
+    });
+
+    gsap.to(profileBlock, {
+      autoAlpha: 1,
+      scale: 1,
+      duration: 0.75,
+      ease: 'power2.out',
+      onComplete: () => {
         profileContainer.classList.add('orbit');
-      }}
-    );
-    if (!isTouchDevice) {
+      }
+    });
+
+    if (!isTouchDevice && typeof cursorTrailEffect !== 'undefined') {
       try {
-        new cursorTrailEffect({
-          length: 10,
-          size: 8,
-          speed: 0.2
-        });
-        console.log("Cursor trail initialized");
+        new cursorTrailEffect({ length: 10, size: 8, speed: 0.2 });
       } catch (err) {
         console.error("Failed to initialize cursor trail effect:", err);
       }
     }
+
     typeWriterName();
     typeWriterBio();
-  });
+  }
+
+  startScreen.addEventListener('pointerup', startExperience, { once: true });
+  startScreen.addEventListener('click', startExperience, { once: true });
 
 
   const name = "k1mberlye";
@@ -281,7 +266,7 @@ initializeVisitorCounter();
   let currentAudio = backgroundMusic;
   let isMuted = false;
 
-  volumeIcon.addEventListener('click', () => {
+  if (volumeIcon) volumeIcon.addEventListener('click', () => {
     isMuted = !isMuted;
     currentAudio.muted = isMuted;
     volumeIcon.innerHTML = isMuted
@@ -289,7 +274,7 @@ initializeVisitorCounter();
       : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>`;
   });
 
-  volumeIcon.addEventListener('touchstart', (e) => {
+  if (volumeIcon) volumeIcon.addEventListener('touchstart', (e) => {
     e.preventDefault();
     isMuted = !isMuted;
     currentAudio.muted = isMuted;
@@ -298,15 +283,15 @@ initializeVisitorCounter();
       : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>`;
   });
 
-  volumeSlider.addEventListener('input', () => {
-    currentAudio.volume = volumeSlider.value;
+  if (volumeSlider) volumeSlider.addEventListener('input', () => {
+    currentAudio.volume = volumeSlider ? volumeSlider.value : 0.3;
     isMuted = false;
     currentAudio.muted = false;
     volumeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>`;
   });
 
 
-  transparencySlider.addEventListener('input', () => {
+  if (transparencySlider) transparencySlider.addEventListener('input', () => {
     const opacity = transparencySlider.value;
     if (opacity == 0) {
       profileBlock.style.background = 'rgba(0, 0, 0, 0)';
@@ -394,7 +379,7 @@ initializeVisitorCounter();
           currentAudio.currentTime = 0;
         }
         currentAudio = audio;
-        currentAudio.volume = volumeSlider.value;
+        currentAudio.volume = volumeSlider ? volumeSlider.value : 0.3;
         currentAudio.muted = isMuted;
         currentAudio.play().catch(err => console.error("Failed to play theme music:", err));
 
@@ -505,51 +490,18 @@ initializeVisitorCounter();
     });
   }
 
-  profileBlock.addEventListener('mousemove', (e) => handleTilt(e, profileBlock));
-  profileBlock.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    handleTilt(e, profileBlock);
-  });
+  if (!isTouchDevice) {
+    profileBlock.addEventListener('mousemove', (e) => handleTilt(e, profileBlock));
+    skillsBlock.addEventListener('mousemove', (e) => handleTilt(e, skillsBlock));
 
-  skillsBlock.addEventListener('mousemove', (e) => handleTilt(e, skillsBlock));
-  skillsBlock.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    handleTilt(e, skillsBlock);
-  });
+    profileBlock.addEventListener('mouseleave', () => {
+      gsap.to(profileBlock, { rotationX: 0, rotationY: 0, duration: 0.5, ease: 'power2.out' });
+    });
 
-  profileBlock.addEventListener('mouseleave', () => {
-    gsap.to(profileBlock, {
-      rotationX: 0,
-      rotationY: 0,
-      duration: 0.5,
-      ease: 'power2.out'
+    skillsBlock.addEventListener('mouseleave', () => {
+      gsap.to(skillsBlock, { rotationX: 0, rotationY: 0, duration: 0.5, ease: 'power2.out' });
     });
-  });
-  profileBlock.addEventListener('touchend', () => {
-    gsap.to(profileBlock, {
-      rotationX: 0,
-      rotationY: 0,
-      duration: 0.5,
-      ease: 'power2.out'
-    });
-  });
-
-  skillsBlock.addEventListener('mouseleave', () => {
-    gsap.to(skillsBlock, {
-      rotationX: 0,
-      rotationY: 0,
-      duration: 0.5,
-      ease: 'power2.out'
-    });
-  });
-  skillsBlock.addEventListener('touchend', () => {
-    gsap.to(skillsBlock, {
-      rotationX: 0,
-      rotationY: 0,
-      duration: 0.5,
-      ease: 'power2.out'
-    });
-  });
+  }
 
 
   profilePicture.addEventListener('mouseenter', () => {

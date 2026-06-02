@@ -1621,3 +1621,40 @@ select,
   z-index: 2147483647 !important;
   pointer-events: none !important;
 }
+
+
+/* ===== K1MBERLYE LAPTOP / FYDEOS FIX ===== */
+@media (max-height: 900px) {
+  #profile-block{
+    top: 44% !important;
+  }
+
+  .controls{
+    bottom: 18px !important;
+  }
+
+  .top-controls{
+    bottom: 70px !important;
+  }
+}
+
+@media (max-height: 768px) {
+  #profile-block{
+    top: 42% !important;
+    transform: translate(-50%, -42%) !important;
+  }
+
+  #bottom-visualizer{
+    opacity: .65;
+  }
+}
+
+/* prevent custom cursor from hiding behind terminal */
+.custom-cursor{
+  z-index: 999999 !important;
+}
+
+/* smoother scaling on smaller laptops */
+#profile-block{
+  max-width: min(820px, 92vw);
+}

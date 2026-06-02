@@ -116,19 +116,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 500);
 
 
+const supabaseClient = window.supabase.createClient(
+  "https://farebujaeqgfegagxhid.supabase.co",
+  "sb_publishable__8Bh-LJpSf6NEOgPau0RYw_yfA6iaWw"
+);
+
 async function initializeVisitorCounter() {
   try {
-    const response = await fetch(
-      "https://api.counterapi.dev/v1/aresrhdn-k1mberlye/profileviews/up"
-    );
+    await supabaseClient
+      .from("profile_views")
+      .insert({});
 
-    const data = await response.json();
+    const { count, error } = await supabaseClient
+      .from("profile_views")
+      .select("*", {
+        count: "exact",
+        head: true
+      });
 
-    visitorCount.textContent =
-      data.count.toLocaleString("en-US");
+    if (error) throw error;
 
+    visitorCount.textContent = count.toLocaleString("en-US");
   } catch (err) {
-    console.error("Counter Error:", err);
+    console.error("Supabase Counter Error:", err);
     visitorCount.textContent = "0";
   }
 }

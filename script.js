@@ -831,3 +831,194 @@ function roundRect(ctx, x, y, width, height, radius) {
   ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
 }
+
+
+/* =========================================
+   FAKE TERMINAL
+   open from the "open terminal" button or Ctrl + `
+========================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const openBtn = document.getElementById('open-terminal-btn');
+  const overlay = document.getElementById('terminal-overlay');
+  const closeBtn = document.getElementById('terminal-close');
+  const output = document.getElementById('terminal-output');
+  const form = document.getElementById('terminal-form');
+  const input = document.getElementById('terminal-input');
+  const visitorCount = document.getElementById('visitor-count');
+
+  if (!openBtn || !overlay || !closeBtn || !output || !form || !input) return;
+
+  let bootedOnce = false;
+
+  const bootLines = [
+    { text: 'initializing k1mberlye profile shell...', type: 'dim' },
+    { text: 'loading modules: discord, supabase, visualizer...', type: 'dim' },
+    { text: 'checking access token...', type: 'dim' },
+    { text: 'access granted.', type: 'success' },
+    { text: '' },
+    { text: 'type help to see available commands.', type: 'warning' }
+  ];
+
+  const commands = {
+    help: [
+      'available commands:',
+      '  about      show profile info',
+      '  services   show what i do',
+      '  status     show current status',
+      '  views      show profile views',
+      '  socials    show social links',
+      '  contact    show contact info',
+      '  discord    open discord invite',
+      '  saweria    open saweria page',
+      '  clear      clear terminal',
+      '  exit       close terminal'
+    ],
+    about: [
+      'user: k1mberlye / aresrhdn',
+      'role: profile website builder + pc optimization specialist',
+      'stack: html, css, javascript, vercel, supabase',
+      'vibe: cyberpunk glassmorphism with live widgets'
+    ],
+    services: [
+      'services:',
+      '  > pc optimization',
+      '  > gaming performance tweaks',
+      '  > custom windows optimization',
+      '  > interactive profile website'
+    ],
+    status: [
+      'status: online',
+      'mode: building something cool',
+      'audio visualizer: active',
+      'discord presence: live'
+    ],
+    socials: [
+      'socials:',
+      '  github   : github.com/k1mberlye',
+      '  website  : aresrhdn.my.id',
+      '  discord  : check the discord card'
+    ],
+    contact: [
+      'contact:',
+      '  discord: use the discord card',
+      '  support: saweria.co/aresrhdn'
+    ]
+  };
+
+  function appendLine(text = '', type = '') {
+    const line = document.createElement('div');
+    line.className = `terminal-line ${type}`.trim();
+    line.textContent = text;
+    output.appendChild(line);
+    output.scrollTop = output.scrollHeight;
+  }
+
+  function appendCommand(command) {
+    appendLine(`k1mberlye@profile:~$ ${command}`, 'command');
+  }
+
+  async function typeLines(lines, delay = 90) {
+    for (const item of lines) {
+      const text = typeof item === 'string' ? item : item.text;
+      const type = typeof item === 'string' ? '' : item.type;
+      appendLine(text, type);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  async function openTerminal() {
+    overlay.classList.remove('hidden');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('terminal-open');
+
+    if (!bootedOnce) {
+      output.innerHTML = '';
+      bootedOnce = true;
+      await typeLines(bootLines, 105);
+    }
+
+    setTimeout(() => input.focus(), 70);
+  }
+
+  function closeTerminal() {
+    overlay.classList.add('hidden');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('terminal-open');
+  }
+
+  function handleCommand(rawCommand) {
+    const command = rawCommand.trim().toLowerCase();
+    if (!command) return;
+
+    appendCommand(command);
+
+    if (command === 'clear') {
+      output.innerHTML = '';
+      return;
+    }
+
+    if (command === 'exit') {
+      appendLine('closing terminal...', 'dim');
+      setTimeout(closeTerminal, 350);
+      return;
+    }
+
+    if (command === 'views') {
+      const views = visitorCount ? visitorCount.textContent : 'loading';
+      appendLine(`profile views: ${views}`, 'success');
+      return;
+    }
+
+    if (command === 'discord') {
+      appendLine('opening discord...', 'success');
+      const discordLink = document.querySelector('.discord-card a, a[href*="discord"]');
+      if (discordLink && discordLink.href) {
+        window.open(discordLink.href, '_blank');
+      } else {
+        appendLine('discord link not found in this page.', 'warning');
+      }
+      return;
+    }
+
+    if (command === 'saweria') {
+      appendLine('opening saweria...', 'success');
+      window.open('https://saweria.co/aresrhdn', '_blank');
+      return;
+    }
+
+    if (commands[command]) {
+      commands[command].forEach(line => appendLine(line));
+      return;
+    }
+
+    appendLine(`command not found: ${command}`, 'error');
+    appendLine('type help for command list.', 'dim');
+  }
+
+  openBtn.addEventListener('click', openTerminal);
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const command = input.value;
+    input.value = '';
+    handleCommand(command);
+  });
+
+  closeBtn.addEventListener('click', closeTerminal);
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeTerminal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !overlay.classList.contains('hidden')) {
+      closeTerminal();
+    }
+
+    if (e.ctrlKey && e.key === '`') {
+      e.preventDefault();
+      if (overlay.classList.contains('hidden')) openTerminal();
+      else closeTerminal();
+    }
+  });
+});

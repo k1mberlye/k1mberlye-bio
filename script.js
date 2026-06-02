@@ -8,7 +8,7 @@ function initMedia() {
     console.error("Media elements not found");
     return;
   }
-  backgroundMusic.volume = 0.3;
+  backgroundMusic.volume = 0.1;
   backgroundMusic.preload = 'auto';
   try { backgroundMusic.load(); } catch (e) {}
   backgroundVideo.muted = true; 
@@ -136,7 +136,7 @@ initializeVisitorCounter();
 
     try {
       backgroundMusic.muted = false;
-      backgroundMusic.volume = 0.3;
+      backgroundMusic.volume = 0.1;
       backgroundMusic.preload = 'auto';
       try { backgroundMusic.load(); } catch (e) {}
       await backgroundMusic.play();

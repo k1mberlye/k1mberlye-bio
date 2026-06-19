@@ -1658,3 +1658,18 @@ select,
 #profile-block{
   max-width: min(820px, 92vw);
 }
+
+
+/* Reduced blur so background video is more visible */
+#profile-block,
+#skills-block {
+  backdrop-filter: blur(2px) !important;
+  -webkit-backdrop-filter: blur(2px) !important;
+  background: rgba(0,0,0,0.45) !important;
+}
+
+.discord-card,
+.social-links {
+  backdrop-filter: blur(2px) !important;
+  -webkit-backdrop-filter: blur(2px) !important;
+}
